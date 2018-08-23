@@ -1,9 +1,11 @@
 #include "precompiled.hpp"
 
+INITCODE
 EXTERN_C
 DRIVER_INITIALIZE
     DriverEntry;
 
+PAGED
 static
 EVT_WDF_DRIVER_DEVICE_ADD
     EvtDriverDeviceAdd;
@@ -31,11 +33,14 @@ DriverEntry(
 }
 
 _Use_decl_annotations_
+PAGED
 NTSTATUS
 EvtDriverDeviceAdd(
     WDFDRIVER Driver,
     WDFDEVICE_INIT * DeviceInit)
 {
+    PAGED_CODE();
+
     UNREFERENCED_PARAMETER((Driver, DeviceInit));
 
     return STATUS_NOT_IMPLEMENTED;
