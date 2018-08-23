@@ -1,5 +1,7 @@
 #include "precompiled.hpp"
 
+#include "ds18b20.hpp"
+
 INITCODE
 EXTERN_C
 DRIVER_INITIALIZE
@@ -41,7 +43,21 @@ EvtDriverDeviceAdd(
 {
     PAGED_CODE();
 
-    UNREFERENCED_PARAMETER((Driver, DeviceInit));
+    UNREFERENCED_PARAMETER(Driver);
 
-    return STATUS_NOT_IMPLEMENTED;
+    WDF_OBJECT_ATTRIBUTES deviceAttributes;
+    WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(
+        &deviceAttributes,
+        DS18B20);
+
+    WDFDEVICE device;
+    RETURN_IF_NOT_SUCCESS(
+        WdfDeviceCreate(
+            &DeviceInit,
+            &deviceAttributes,
+            &device));
+
+    new (device) DS18B20(device);
+
+    return STATUS_SUCCESS;
 }

@@ -27,12 +27,18 @@
     <ClInclude Include="precompiled.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ds18b20.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="precompiled.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="driver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ds18b20.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
