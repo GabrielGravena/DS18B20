@@ -45,19 +45,7 @@ EvtDriverDeviceAdd(
 
     UNREFERENCED_PARAMETER(Driver);
 
-    WDF_OBJECT_ATTRIBUTES deviceAttributes;
-    WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(
-        &deviceAttributes,
-        DS18B20);
-
-    WDFDEVICE device;
-    RETURN_IF_NOT_SUCCESS(
-        WdfDeviceCreate(
-            &DeviceInit,
-            &deviceAttributes,
-            &device));
-
-    new (device) DS18B20(device);
+    RETURN_IF_NOT_SUCCESS(CreateDS18B20Device(DeviceInit));
 
     return STATUS_SUCCESS;
 }
