@@ -74,6 +74,7 @@ DS18B20::DS18B20(WDFDEVICE Device)
 {
     PAGED_CODE();
 }
+
 _Use_decl_annotations_
 PAGED
 NTSTATUS
@@ -84,5 +85,32 @@ DS18B20::PrepareHardware(
     PAGED_CODE();
 
     UNREFERENCED_PARAMETER((ResourcesRaw, ResourcesTranslated));
+
+    bool resourceFound = false;
+    for (ULONG i = 0; i < WdfCmResourceListGetCount(ResourcesTranslated); i++)
+    {
+        auto descriptor = WdfCmResourceListGetDescriptor(
+            ResourcesTranslated,
+            i);
+
+        if (descriptor->Type == CmResourceTypeConnection)
+        {
+            if (descriptor->u.Connection.Class == CM_RESOURCE_CONNECTION_CLASS_GPIO &&
+                descriptor->u.Connection.Type == CM_RESOURCE_CONNECTION_TYPE_GPIO_IO)
+            {
+                m_gpioConnectionId.HighPart = descriptor->u.Connection.IdHighPart;
+                m_gpioConnectionId.LowPart = descriptor->u.Connection.IdLowPart;
+
+                resourceFound = true;
+                break;
+            }
+        }
+    }
+
+    if (!resourceFound)
+    {
+        return STATUS_RESOURCE_TYPE_NOT_FOUND;
+    }
+
     return STATUS_SUCCESS;
 }

@@ -31,5 +31,8 @@ private:
     WDFDEVICE
         m_device = WDF_NO_HANDLE;
 
+    LARGE_INTEGER
+        m_gpioConnectionId = {};
+
 };
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DS18B20, GetDeviceContext);
