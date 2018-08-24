@@ -1,23 +1,16 @@
-DefinitionBlock ("DSDT.AML", "DSDT", 0x02, "MSFT", "SAMPLE", 0x1)
+DefinitionBlock ("ACPITABL.dat", "SSDT", 0x01, "MSFT", "DS18B20", 0x1)
 {
     Scope(\_SB)
     {
-        Device(GPIO)
+        Device(GPOT)
         {
-            Name(_ADR, 0)
-            Name(_HID, "TEST0001")
-            Name(_CID, "TEST0001")
-            Name(_UID, 4)
-
-            Method (_CRS, 0x0, NotSerialized)
+            Name(_HID, "ds18b20")
+            Name(_CID, "ds18b20")
+            Name(_UID, 1)
+            Name(_CRS, ResourceTemplate()
             {
-                Name (RBUF, ResourceTemplate()
-                {
-                    GpioIo(Exclusive, PullUp, 0, 0, , "\\_SB_GPIO", 0, ResourceConsumer, , RawDataBuffer() {1}) {18}
-                })
-
-                return (RBUF)
-            }
+                GpioIO(Shared, PullDefault, 0, 0, IoRestrictionNoneAndPreserve, "\\_SB.GPI0", 0, ResourceConsumer, , ) { 18 }
+            })
         }
     }
 }
