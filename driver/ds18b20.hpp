@@ -26,10 +26,18 @@ public:
         _In_ WDFCMRESLIST ResourcesRaw,
         _In_ WDFCMRESLIST ResourcesTranslated);
 
+    _IRQL_requires_max_(PASSIVE_LEVEL)
+    PAGED
+    NTSTATUS
+    SelfManagedIoInit(void);
+
 private:
 
     WDFDEVICE
         m_device = WDF_NO_HANDLE;
+
+    WDFIOTARGET
+        m_ioTarget = WDF_NO_HANDLE;
 
     LARGE_INTEGER
         m_gpioConnectionId = {};

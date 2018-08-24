@@ -2,6 +2,8 @@
 
 #include <ntddk.h>
 #include <wdf.h>
+#define RESHUB_USE_HELPER_ROUTINES
+#include <reshub.h>
 
 #define INITCODE __declspec(code_seg("init"))
 #define PAGED __declspec(code_seg("paged"))

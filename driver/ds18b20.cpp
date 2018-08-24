@@ -114,3 +114,35 @@ DS18B20::PrepareHardware(
 
     return STATUS_SUCCESS;
 }
+
+_Use_decl_annotations_
+PAGED
+NTSTATUS
+DS18B20::SelfManagedIoInit(void)
+{
+    RETURN_IF_NOT_SUCCESS(
+        WdfIoTargetCreate(
+            m_device,
+            WDF_NO_OBJECT_ATTRIBUTES,
+            &m_ioTarget));
+
+    DECLARE_UNICODE_STRING_SIZE(fileName, 256);
+
+    RESOURCE_HUB_CREATE_PATH_FROM_ID(
+        &fileName,
+        m_gpioConnectionId.LowPart,
+        m_gpioConnectionId.HighPart);
+
+    WDF_IO_TARGET_OPEN_PARAMS openParams;
+    WDF_IO_TARGET_OPEN_PARAMS_INIT_OPEN_BY_NAME(
+        &openParams,
+        &fileName,
+        GENERIC_READ | GENERIC_WRITE);
+
+    RETURN_IF_NOT_SUCCESS(
+        WdfIoTargetOpen(
+            m_ioTarget,
+            &openParams));
+
+    return STATUS_SUCCESS;
+}
