@@ -7,6 +7,16 @@ static
 EVT_WDF_DEVICE_PREPARE_HARDWARE
     EvtDevicePrepareHardware;
 
+PAGED
+static
+EVT_WDF_DEVICE_SELF_MANAGED_IO_INIT
+    EvtDeviceSelfManagedIoInit;
+
+PAGED
+static
+EVT_WDF_DEVICE_SELF_MANAGED_IO_CLEANUP
+    EvtDeviceSelfManagedIoCleanup;
+
 _Use_decl_annotations_
 PAGED
 NTSTATUS
@@ -27,6 +37,30 @@ EvtDevicePrepareHardware(
 _Use_decl_annotations_
 PAGED
 NTSTATUS
+EvtDeviceSelfManagedIoInit(
+    WDFDEVICE Device)
+{
+    PAGED_CODE();
+
+    auto deviceContext = GetDeviceContext(Device);
+    return deviceContext->SelfManagedIoInit();
+}
+
+_Use_decl_annotations_
+PAGED
+void
+EvtDeviceSelfManagedIoCleanup(
+    WDFDEVICE Device)
+{
+    PAGED_CODE();
+
+    auto deviceContext = GetDeviceContext(Device);
+    deviceContext->SelfManagedIoCleanup();
+}
+
+_Use_decl_annotations_
+PAGED
+NTSTATUS
 CreateDS18B20Device(WDFDEVICE_INIT * DeviceInit)
 {
     PAGED_CODE();
@@ -34,6 +68,8 @@ CreateDS18B20Device(WDFDEVICE_INIT * DeviceInit)
     WDF_PNPPOWER_EVENT_CALLBACKS pnpPowerCallbacks;
     WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&pnpPowerCallbacks);
     pnpPowerCallbacks.EvtDevicePrepareHardware = EvtDevicePrepareHardware;
+    pnpPowerCallbacks.EvtDeviceSelfManagedIoInit = EvtDeviceSelfManagedIoInit;
+    pnpPowerCallbacks.EvtDeviceSelfManagedIoCleanup = EvtDeviceSelfManagedIoCleanup;
 
     WdfDeviceInitSetPnpPowerEventCallbacks(
         DeviceInit,
@@ -50,6 +86,15 @@ CreateDS18B20Device(WDFDEVICE_INIT * DeviceInit)
             &DeviceInit,
             &deviceAttributes,
             &device));
+
+    WDF_DEVICE_PNP_CAPABILITIES pnpCapabilities;
+    WDF_DEVICE_PNP_CAPABILITIES_INIT(&pnpCapabilities);
+    pnpCapabilities.Removable = WdfTrue;
+    pnpCapabilities.SurpriseRemovalOK = WdfTrue;
+
+    WdfDeviceSetPnpCapabilities(
+        device,
+        &pnpCapabilities);
 
     new (device) DS18B20(device);
 
@@ -144,5 +189,41 @@ DS18B20::SelfManagedIoInit(void)
             m_ioTarget,
             &openParams));
 
+    UCHAR data = 0x1;
+    WDF_MEMORY_DESCRIPTOR memoryDesc;
+
+    WDF_MEMORY_DESCRIPTOR_INIT_BUFFER(
+        &memoryDesc,
+        &data,
+        sizeof(data));
+
+    for (auto i = 0; i < 10; i++)
+    {
+        data = data ? 0 : 1;
+
+        RETURN_IF_NOT_SUCCESS(
+            WdfIoTargetSendIoctlSynchronously(
+                m_ioTarget,
+                nullptr,
+                IOCTL_GPIO_WRITE_PINS,
+                &memoryDesc,
+                nullptr,
+                nullptr,
+                nullptr));
+
+        KeStallExecutionProcessor(100000);
+    }
+
     return STATUS_SUCCESS;
+}
+
+_Use_decl_annotations_
+PAGED
+void
+DS18B20::SelfManagedIoCleanup(void)
+{
+    if (m_ioTarget != WDF_NO_HANDLE)
+    {
+        WdfIoTargetClose(m_ioTarget);
+    }
 }

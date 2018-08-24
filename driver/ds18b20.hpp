@@ -31,6 +31,11 @@ public:
     NTSTATUS
     SelfManagedIoInit(void);
 
+    _IRQL_requires_max_(PASSIVE_LEVEL)
+    PAGED
+    void
+    SelfManagedIoCleanup(void);
+
 private:
 
     WDFDEVICE
