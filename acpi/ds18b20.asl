@@ -11,6 +11,14 @@ DefinitionBlock ("ACPITABL.dat", "SSDT", 0x01, "MSFT", "DS18B20", 0x1)
             {
                 GpioIO(Shared, PullDefault, 0, 0, IoRestrictionNoneAndPreserve, "\\_SB.GPI0", 0, ResourceConsumer, , ) { 18 }
             })
+            Method(_DIS)
+            {
+                // Place holder to allow disable
+            }
+            Method (_STA) 
+            {
+                Return(0xF)
+            }
         }
     }
 }
