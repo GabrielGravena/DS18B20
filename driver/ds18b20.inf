@@ -1,5 +1,5 @@
 ;
-; driver.inf
+; ds18b20.inf
 ;
 
 [Version]
@@ -7,12 +7,12 @@ Signature="$WINDOWS NT$"
 Class=Sample ; TODO: edit Class
 ClassGuid={78A1C341-4539-11d3-B88D-00C04FAD5171} ; TODO: edit ClassGuid
 Provider=%ManufacturerName%
-CatalogFile=driver.cat
-DriverVer= ; TODO: set DriverVer in stampinf property pages
+CatalogFile=ds18b20.cat
+DriverVer= 
 
 [DestinationDirs]
 DefaultDestDir = 12
-driver_Device_CoInstaller_CopyFiles = 11
+ds18b20_Device_CoInstaller_CopyFiles = 11
 
 ; ================= Class section =====================
 
@@ -27,7 +27,7 @@ HKR,,Icon,,-5
 1 = %DiskName%,,,""
 
 [SourceDisksFiles]
-driver.sys  = 1,,
+ds18b20.sys  = 1,,
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
 
 ;*****************************************
@@ -38,49 +38,49 @@ WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with
 %ManufacturerName%=Standard,NT$ARCH$
 
 [Standard.NT$ARCH$]
-%driver.DeviceDesc%=driver_Device, Root\driver ; TODO: edit hw-id
+%ds18b20.DeviceDesc%=ds18b20_Device, ACPI\ds18b20
 
-[driver_Device.NT]
+[ds18b20_Device.NT]
 CopyFiles=Drivers_Dir
 
 [Drivers_Dir]
-driver.sys
+ds18b20.sys
 
 ;-------------- Service installation
-[driver_Device.NT.Services]
-AddService = driver,%SPSVCINST_ASSOCSERVICE%, driver_Service_Inst
+[ds18b20_Device.NT.Services]
+AddService = ds18b20,%SPSVCINST_ASSOCSERVICE%, ds18b20_Service_Inst
 
-; -------------- driver driver install sections
-[driver_Service_Inst]
-DisplayName    = %driver.SVCDESC%
+; -------------- ds18b20 driver install sections
+[ds18b20_Service_Inst]
+DisplayName    = %ds18b20.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\driver.sys
+ServiceBinary  = %12%\ds18b20.sys
 
 ;
-;--- driver_Device Coinstaller installation ------
+;--- ds18b20_Device Coinstaller installation ------
 ;
 
-[driver_Device.NT.CoInstallers]
-AddReg=driver_Device_CoInstaller_AddReg
-CopyFiles=driver_Device_CoInstaller_CopyFiles
+[ds18b20_Device.NT.CoInstallers]
+AddReg=ds18b20_Device_CoInstaller_AddReg
+CopyFiles=ds18b20_Device_CoInstaller_CopyFiles
 
-[driver_Device_CoInstaller_AddReg]
+[ds18b20_Device_CoInstaller_AddReg]
 HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
 
-[driver_Device_CoInstaller_CopyFiles]
+[ds18b20_Device_CoInstaller_CopyFiles]
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
 
-[driver_Device.NT.Wdf]
-KmdfService =  driver, driver_wdfsect
-[driver_wdfsect]
+[ds18b20_Device.NT.Wdf]
+KmdfService =  ds18b20, ds18b20_wdfsect
+[ds18b20_wdfsect]
 KmdfLibraryVersion = $KMDFVERSION$
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
-ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+ManufacturerName="MSFT"
 ClassName="Samples" ; TODO: edit ClassName
-DiskName = "driver Installation Disk"
-driver.DeviceDesc = "driver Device"
-driver.SVCDESC = "driver Service"
+DiskName = "DS18B20 Installation Disk"
+ds18b20.DeviceDesc = "DS18B20 Device"
+ds18b20.SVCDESC = "DS18B20 Service"
