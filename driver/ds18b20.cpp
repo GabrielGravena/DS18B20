@@ -43,7 +43,7 @@ EvtDeviceSelfManagedIoInit(
     PAGED_CODE();
 
     auto deviceContext = GetDeviceContext(Device);
-    return deviceContext->SelfManagedIoInit();
+    return deviceContext->InitializeGpio();
 }
 
 _Use_decl_annotations_
@@ -55,7 +55,7 @@ EvtDeviceSelfManagedIoCleanup(
     PAGED_CODE();
 
     auto deviceContext = GetDeviceContext(Device);
-    deviceContext->SelfManagedIoCleanup();
+    deviceContext->UninitializeGpio();
 }
 
 _Use_decl_annotations_
@@ -86,15 +86,6 @@ CreateDS18B20Device(WDFDEVICE_INIT * DeviceInit)
             &DeviceInit,
             &deviceAttributes,
             &device));
-
-    WDF_DEVICE_PNP_CAPABILITIES pnpCapabilities;
-    WDF_DEVICE_PNP_CAPABILITIES_INIT(&pnpCapabilities);
-    pnpCapabilities.Removable = WdfTrue;
-    pnpCapabilities.SurpriseRemovalOK = WdfTrue;
-
-    WdfDeviceSetPnpCapabilities(
-        device,
-        &pnpCapabilities);
 
     new (device) DS18B20(device);
 
@@ -163,7 +154,7 @@ DS18B20::PrepareHardware(
 _Use_decl_annotations_
 PAGED
 NTSTATUS
-DS18B20::SelfManagedIoInit(void)
+DS18B20::InitializeGpio(void)
 {
     RETURN_IF_NOT_SUCCESS(
         WdfIoTargetCreate(
@@ -189,6 +180,7 @@ DS18B20::SelfManagedIoInit(void)
             m_ioTarget,
             &openParams));
 
+    // Test GPIO connection
     UCHAR data = 0x1;
     WDF_MEMORY_DESCRIPTOR memoryDesc;
 
@@ -220,7 +212,7 @@ DS18B20::SelfManagedIoInit(void)
 _Use_decl_annotations_
 PAGED
 void
-DS18B20::SelfManagedIoCleanup(void)
+DS18B20::UninitializeGpio(void)
 {
     if (m_ioTarget != WDF_NO_HANDLE)
     {

@@ -29,12 +29,12 @@ public:
     _IRQL_requires_max_(PASSIVE_LEVEL)
     PAGED
     NTSTATUS
-    SelfManagedIoInit(void);
+    InitializeGpio(void);
 
     _IRQL_requires_max_(PASSIVE_LEVEL)
     PAGED
     void
-    SelfManagedIoCleanup(void);
+    UninitializeGpio(void);
 
 private:
 
